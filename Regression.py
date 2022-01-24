@@ -49,7 +49,10 @@ class RegressionModel:
     
     # If the user chooses the Ridge regularizer, then the user can also choose the value
     # of the regularizer term, lambda. The default is lambda.
-    def PolynomialRegression(self, M, regression='None', lambdaRegression=0.1):
+    def PolynomialRegression(self, MM, regression='None', lambdaRegression=0.1):
+        # Save the model order.
+        self.MM = M
+        
         # Create the feature matrix, big X, for the training data.
         # For each x training data point, bring it to the m-th power from 0 to M.
         # Transpose it so that rows represent samples and columns represent features.

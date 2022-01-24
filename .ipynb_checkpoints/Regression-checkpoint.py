@@ -1,16 +1,25 @@
+import numpy as np
+
 # Create a class that will hold the polynomial and exponential regression functions.
 # The functions include PolynomialRegression and ExponentialRegression.
-class RegressionModel2:
+# This class assumes the data has already been separated into training/testing data.
+class RegressionModel:
     
     # Define the initialize method.
     # The inputs will simply be the x training data, y training data, x testing data, and
     # y testing data.
     def __init__(self, x_train, x_test, y_train, y_test):
+        self.x_train = x_train
+        self.x_test = x_test
+        self.y_train = y_train
+        self.y_test = y_test
+        
         # Set the x-axis
-        self.x_axis = x_axis
+        #self.x_axis = x_axis
         # Set the y-axis
-        self.y_axis = y_axis
+        #self.y_axis = y_axis
     
+    ''' Useless Custom train_test_split Function. :)
     # Define a function within this class to separate the data into training and testing data.
     # The additional input will be the desired training size expressed as a fraction.
     # This function does NOT randomize the data.
@@ -29,11 +38,21 @@ class RegressionModel2:
         self.y_train = self.y_axis[0:np.int_(np.ceil(x_length*train_size_fraction))]
         self.y_test = self.y_axis[np.int_(np.ceil(x_length*train_size_fraction)):]
         return self.x_train, self.x_test, self.y_train, self.y_test
+    '''
     
     # Define a function within this class to calculate the polynomial regression with
     # M-th order polynomial.
     # Polynomial regression has the form y = w0 + w1*x + w2*x**2 + ... + wM*x**M
-    def PolynomialRegression(self, M):
+    
+    # The user can also define if the regression should have a regularizer. The default
+    # option is 'None'. The user can choose Ridge regularizer.
+    
+    # If the user chooses the Ridge regularizer, then the user can also choose the value
+    # of the regularizer term, lambda. The default is lambda.
+    def PolynomialRegression(self, MM, regression='None', lambdaRegression=0.1):
+        # Save the model order.
+        self.MM = M
+        
         # Create the feature matrix, big X, for the training data.
         # For each x training data point, bring it to the m-th power from 0 to M.
         # Transpose it so that rows represent samples and columns represent features.
@@ -42,7 +61,10 @@ class RegressionModel2:
         # Compute the weights by using the Moore–Penrose pseudoinverse.
         # Only works for small datasets.
         # Use the @ symbol to multiply matrices. Using * symbol gives different results.
-        self.w_poly = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ self.y_train
+        if regression == 'None':
+            self.w_poly = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ self.y_train
+        elif regression == 'Ridge':
+            self.w_poly = np.linalg.inv(X_train.T @ X_train + lambdaRegression * np.eye(M + 1)) @ X_train.T @ self.y_train
         
         # Calculate the predicted y training values.
         self.y_train_predicted = X_train @ self.w_poly
@@ -53,7 +75,7 @@ class RegressionModel2:
         # Calculate the predicted y test values.
         # Need to first create the feature matrix, big X, for the test data.
         X_test = np.array([self.x_test**m for m in range(M+1)]).T
-        # Then use the new feature matrix to calculate the predictions for the y test values.
+        # Then use the testing feature matrix to calculate the predictions for the y test values.
         self.y_test_predicted = X_test @ self.w_poly
         
         # Calculate the error for the y test values.
@@ -69,7 +91,8 @@ class RegressionModel2:
         # The input x_future should be a numpy array.
         # Create the feature matrix, big X.
         X_future = np.array([x_future**m for m in range(M+1)]).T
-        # Then use the feature matrix to calculate the extrapolated y value.
+        # Then use the "future" feature matrix to calculate the extrapolated y value.
+        # Use the same weights calculated from the previous function.
         self.y_future = X_future @ self.w_poly
         
         return self.y_future
@@ -98,7 +121,7 @@ class RegressionModel2:
         # Calculate the predicted y test values.
         # Need to first create the feature matrix, big X, for the test data.
         X_test = np.array([self.x_test**m for m in range(M+1)]).T
-        # Then use the new feature matrix to calculate the predictions for the y test values.
+        # Then use the testing feature matrix to calculate the predictions for the y test values.
         self.y_test_predicted = np.exp(X_test @ self.w_exp)
         
         # Calculate the error for the y test values.
@@ -114,11 +137,12 @@ class RegressionModel2:
         # The input x_future should be a numpy array.
         # Create the feature matrix, big X.
         X_future = np.array([x_future**m for m in range(M+1)]).T
-        # Then use the feature matrix to calculate the extrapolated y value.
+        # Then use the "future" feature matrix to calculate the extrapolated y value.
         self.y_future = np.exp(X_future @ self.w_exp)
         
         return self.y_future
 
+''' Old Regression Model Class :)
 # Create a class that will hold all the functions.
 # The functions include TrainTest, PolynomialRegression, and ExponentialRegression.
 # This class only works if the polynomial regression and the exponential regression uses the
@@ -240,3 +264,4 @@ class RegressionModel:
         self.y_future = np.exp(X_future @ self.w_exp)
         
         return self.y_future
+'''
