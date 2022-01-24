@@ -51,12 +51,12 @@ class RegressionModel:
     # of the regularizer term, lambda. The default is lambda.
     def PolynomialRegression(self, MM, regression='None', lambdaRegression=0.1):
         # Save the model order.
-        self.MM = M
+        self.MM = MM
         
         # Create the feature matrix, big X, for the training data.
         # For each x training data point, bring it to the m-th power from 0 to M.
         # Transpose it so that rows represent samples and columns represent features.
-        X_train = np.array([self.x_train**m for m in range(M+1)]).T
+        X_train = np.array([self.x_train**m for m in range(self.MM+1)]).T
         
         # Compute the weights by using the Moore–Penrose pseudoinverse.
         # Only works for small datasets.
@@ -64,7 +64,7 @@ class RegressionModel:
         if regression == 'None':
             self.w_poly = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ self.y_train
         elif regression == 'Ridge':
-            self.w_poly = np.linalg.inv(X_train.T @ X_train + lambdaRegression * np.eye(M + 1)) @ X_train.T @ self.y_train
+            self.w_poly = np.linalg.inv(X_train.T @ X_train + lambdaRegression * np.eye(self.MM + 1)) @ X_train.T @ self.y_train
         
         # Calculate the predicted y training values.
         self.y_train_predicted = X_train @ self.w_poly
@@ -74,7 +74,7 @@ class RegressionModel:
         
         # Calculate the predicted y test values.
         # Need to first create the feature matrix, big X, for the test data.
-        X_test = np.array([self.x_test**m for m in range(M+1)]).T
+        X_test = np.array([self.x_test**m for m in range(self.MM+1)]).T
         # Then use the testing feature matrix to calculate the predictions for the y test values.
         self.y_test_predicted = X_test @ self.w_poly
         
@@ -87,10 +87,10 @@ class RegressionModel:
     
     # Define a function within this class to use the Polynomial Regression function to extrapolate to
     # "future" data.
-    def PolyRegExtrapolate(self, M, x_future):
+    def PolyRegExtrapolate(self, x_future):
         # The input x_future should be a numpy array.
         # Create the feature matrix, big X.
-        X_future = np.array([x_future**m for m in range(M+1)]).T
+        X_future = np.array([x_future**m for m in range(self.MM+1)]).T
         # Then use the "future" feature matrix to calculate the extrapolated y value.
         # Use the same weights calculated from the previous function.
         self.y_future = X_future @ self.w_poly
@@ -100,11 +100,14 @@ class RegressionModel:
     # Define a function within this class to calculate the exponential regression with
     # M-th order polynomial as the power of the exponential.
     # Exponential regression has the form y = exp(w0 + w1*x + w2*x**2 + ... + wM*x**M)
-    def ExponentialRegression(self, M):
+    def ExponentialRegression(self, MM):
+        # Save the model order.
+        self.MM = MM
+        
         # Create the feature matrix, big X, for the training data.
         # For each x training data point, bring it to the m-th power from 0 to M.
         # Transpose it so that rows represent samples and columns represent features.
-        X_train = np.array([self.x_train**m for m in range(M+1)]).T
+        X_train = np.array([self.x_train**m for m in range(self.MM+1)]).T
         
         # Compute the weights by using the Moore–Penrose pseudoinverse.
         # Only works for small datasets.
@@ -120,7 +123,7 @@ class RegressionModel:
         
         # Calculate the predicted y test values.
         # Need to first create the feature matrix, big X, for the test data.
-        X_test = np.array([self.x_test**m for m in range(M+1)]).T
+        X_test = np.array([self.x_test**m for m in range(self.MM+1)]).T
         # Then use the testing feature matrix to calculate the predictions for the y test values.
         self.y_test_predicted = np.exp(X_test @ self.w_exp)
         
@@ -133,10 +136,10 @@ class RegressionModel:
     
     # Define a function within this class to use the Exponential Regression function to extrapolate to
     # "future" data.
-    def ExpRegExtrapolate(self, M, x_future):
+    def ExpRegExtrapolate(self, x_future):
         # The input x_future should be a numpy array.
         # Create the feature matrix, big X.
-        X_future = np.array([x_future**m for m in range(M+1)]).T
+        X_future = np.array([x_future**m for m in range(self.MM+1)]).T
         # Then use the "future" feature matrix to calculate the extrapolated y value.
         self.y_future = np.exp(X_future @ self.w_exp)
         
