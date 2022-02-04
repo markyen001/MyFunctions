@@ -136,6 +136,7 @@ class RegressionModel:
         
         # Calculate the predicted y test values.
         # Need to first modify the feature matrix, big X, for the test data.
+        aa = np.ones([np.shape(self.x_test)[0], 1]) # Create column vector
         X_test = np.append(aa, self.x_test, axis=1) # Append in the 1 direction.
         # Then use the testing feature matrix to calculate the predictions for the y test values.
         self.y_test_predicted = X_test @ self.w_poly
