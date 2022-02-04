@@ -123,13 +123,13 @@ class RegressionModel:
         # Only works for small datasets.
         # Use the @ symbol to multiply matrices. Using * symbol gives different results.
         if regression == 'None':
-            self.w_poly = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ self.y_train
+            self.w_lin = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ self.y_train
         elif regression == 'Ridge':
-            self.w_poly = np.linalg.inv(X_train.T @ X_train + lambdaRegression * np.eye(np.shape(self.x_train)[1] + 1)) @ X_train.T @ self.y_train
+            self.w_lin = np.linalg.inv(X_train.T @ X_train + lambdaRegression * np.eye(np.shape(self.x_train)[1] + 1)) @ X_train.T @ self.y_train
         
         
         # Calculate the predicted y training values.
-        self.y_train_predicted = X_train @ self.w_poly
+        self.y_train_predicted = X_train @ self.w_lin
         
         # Calculate the error for the y training values.
         self.error_train = self.y_train - self.y_train_predicted
@@ -139,15 +139,15 @@ class RegressionModel:
         aa = np.ones([np.shape(self.x_test)[0], 1]) # Create column vector
         X_test = np.append(aa, self.x_test, axis=1) # Append in the 1 direction.
         # Then use the testing feature matrix to calculate the predictions for the y test values.
-        self.y_test_predicted = X_test @ self.w_poly
+        self.y_test_predicted = X_test @ self.w_lin
         
         # Calculate the error for the y test values.
         self.error_test = self.y_test - self.y_test_predicted
         
         # Output the values. If you don't want to save every variable, then use underscore _. Similar to
         # MATLAB's ~.
-        return self.w_poly, self.y_train_predicted, self.error_train, self.y_test_predicted, self.error_test
-
+        return self.w_lin, self.y_train_predicted, self.error_train, self.y_test_predicted, self.error_test
+    
     
     
     ''' Exponential Regression
