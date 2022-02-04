@@ -40,15 +40,17 @@ class RegressionModel:
         return self.x_train, self.x_test, self.y_train, self.y_test
     '''
     
-    # Define a function within this class to calculate the polynomial regression with
-    # M-th order polynomial.
-    # Polynomial regression has the form y = w0 + w1*x + w2*x**2 + ... + wM*x**M
+    ''' Polynomial Regression
+    Define a function within this class to calculate the polynomial regression with
+    M-th order polynomial.
+    Polynomial regression has the form y = w0 + w1*x + w2*x**2 + ... + wM*x**M
     
-    # The user can also define if the regression should have a regularizer. The default
-    # option is 'None'. The user can choose Ridge regularizer.
+    The user can also define if the regression should have a regularizer. The default
+    option is 'None'. The user can choose Ridge regularizer.
     
-    # If the user chooses the Ridge regularizer, then the user can also choose the value
-    # of the regularizer term, lambda. The default is lambda.
+    If the user chooses the Ridge regularizer, then the user can also choose the value
+    of the regularizer term, lambda. The default is lambda.
+    '''
     def PolynomialRegression(self, MM, regression='None', lambdaRegression=0.1):
         # Save the model order.
         self.MM = MM
@@ -97,9 +99,61 @@ class RegressionModel:
         
         return self.y_future
     
-    # Define a function within this class to calculate the exponential regression with
-    # M-th order polynomial as the power of the exponential.
-    # Exponential regression has the form y = exp(w0 + w1*x + w2*x**2 + ... + wM*x**M)
+    ''' Linear Regression with Multiple Features
+    Define a function within this class to calculate the linear regression with
+    multiple features.
+    Linear regression with multiple features has the form
+    y = w0 + w1*x_1 + w2*x_2 + ... + wM*x_M
+    
+    The user can also define if the regression should have a regularizer. The default
+    option is 'None'. The user can choose Ridge regularizer.
+    
+    If the user chooses the Ridge regularizer, then the user can also choose the value
+    of the regularizer term, lambda. The default is lambda.
+    '''
+    def LinearRegression(self, regression='None', lambdaRegression=0.1):
+        # The input x_train is already in feature matrix form with the
+        # number of rows as the number of samples and the number of columns
+        # as the number of features. However, modify the matrix by appending
+        # a column of ones to the first column so that it holds the weight w0.
+        aa = np.ones([np.shape(self.x_train)[0], 1]) # Create column vector
+        X_train = np.append(aa, self.x_train, axis=1) # Append in the 1 direction.
+        
+        # Compute the weights by using the Moore–Penrose pseudoinverse.
+        # Only works for small datasets.
+        # Use the @ symbol to multiply matrices. Using * symbol gives different results.
+        if regression == 'None':
+            self.w_poly = np.linalg.inv(X_train.T @ X_train) @ X_train.T @ self.y_train
+        elif regression == 'Ridge':
+            self.w_poly = np.linalg.inv(X_train.T @ X_train + lambdaRegression * np.eye(np.shape(self.x_train)[1] + 1)) @ X_train.T @ self.y_train
+        
+        
+        # Calculate the predicted y training values.
+        self.y_train_predicted = X_train @ self.w_poly
+        
+        # Calculate the error for the y training values.
+        self.error_train = self.y_train - self.y_train_predicted
+        
+        # Calculate the predicted y test values.
+        # Need to first modify the feature matrix, big X, for the test data.
+        X_test = np.append(aa, self.x_test, axis=1) # Append in the 1 direction.
+        # Then use the testing feature matrix to calculate the predictions for the y test values.
+        self.y_test_predicted = X_test @ self.w_poly
+        
+        # Calculate the error for the y test values.
+        self.error_test = self.y_test - self.y_test_predicted
+        
+        # Output the values. If you don't want to save every variable, then use underscore _. Similar to
+        # MATLAB's ~.
+        return self.w_poly, self.y_train_predicted, self.error_train, self.y_test_predicted, self.error_test
+
+    
+    
+    ''' Exponential Regression
+    Define a function within this class to calculate the exponential regression with
+    M-th order polynomial as the power of the exponential.
+    Exponential regression has the form y = exp(w0 + w1*x + w2*x**2 + ... + wM*x**M)
+    '''
     def ExponentialRegression(self, MM):
         # Save the model order.
         self.MM = MM
